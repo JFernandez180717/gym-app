@@ -1,7 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -10,9 +11,14 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async register(email: string, password: string) {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    return this.usersService.create({ email, password: hashedPassword });
+  async register(user: CreateUserDto) {
+    if (!user || !user.password) {
+      throw new BadRequestException('Password is required');
+    }
+
+    const hashedPassword = await bcrypt.hash(user.password, 10);
+    user.password = hashedPassword;
+    return this.usersService.create(user);
   }
 
   async login(email: string, password: string) {
@@ -21,7 +27,7 @@ export class AuthService {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
-    const payload = { sub: user.id, email: user.email };
+    const payload = { sub: user.gym_id, email: user.email };
     return { access_token: this.jwtService.sign(payload) };
   }
 }

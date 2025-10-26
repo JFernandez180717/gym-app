@@ -5,11 +5,260 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+enum BloodTypeEnum {
+  A_POS
+  A_NEG
+  B_POS
+  B_NEG
+  AB_POS
+  AB_NEG
+  O_POS
+  O_NEG
+}
+
+model Gender {
+  gym_id         Int 
+  id             String   @id @db.VarChar(2)
+  description    String   @db.VarChar(40)
+  status         Int @default(1)
+  created_date   DateTime  
+  modified_date  DateTime? 
+  created_by     String? @db.VarChar(100)
+  modified_by    String?  @db.VarChar(100)
+
+  gym  Gym   @relation(fields: [gym_id], references: [id])
+  clients  Client[]
+  @@map("gender")
+}
+
+model IdType {
+  gym_id         Int 
+  id              String   @id @db.VarChar(4)
+  description     String   @db.VarChar(40)
+  status          Int @default(1)
+  created_date    DateTime  
+  modified_date   DateTime? 
+  created_by      String? @db.VarChar(100)
+  modified_by     String? @db.VarChar(100)
+
+  gym  Gym   @relation(fields: [gym_id], references: [id])
+  clients  Client[]
+  @@map("id_type")
+}
+
+model Client {
+  gym_id         Int 
+  id             String   @id @db.VarChar(20)
+  first_name     String   @db.VarChar(30)
+  last_name      String   @db.VarChar(30)
+  email          String?  @unique @db.VarChar(100)
+  phone_number   String?  @db.VarChar(20)
+  birth_day      DateTime 
+  gender_id      String @db.VarChar(2)
+  height         Float
+  weight         Float
+  blood_type     BloodTypeEnum
+  type_id        String @db.VarChar(4)
+  address        String?  @db.VarChar(200)
+  fingerprint    Bytes? 
+  status         Int       @default(1)
+  created_date   DateTime 
+  modified_date  DateTime?
+  created_by     String? @db.VarChar(100)
+  modified_by    String?  @db.VarChar(100)
+
+  gym  Gym   @relation(fields: [gym_id], references: [id])
+  gender   Gender   @relation(fields: [gender_id], references: [id])
+  id_type  IdType   @relation(fields: [type_id], references: [id])
+  sales Sale[]
+  usersMembership UserMembership[]
+
+  @@map("client")
+}
+
+model User {
+  gym_id         Int 
+  email         String   @id @db.VarChar(100)
+  password      String   @db.VarChar(100)
+  firstName     String   @db.VarChar(30)
+  lastName      String   @db.VarChar(30)
+  phoneNumber   String?  @db.VarChar(20)
+  status        Int      @default(1)
+  created_date   DateTime 
+  modified_date  DateTime? 
+  created_by     String?  @db.VarChar(100)
+  modified_by    String?  @db.VarChar(100)
+
+  gym  Gym   @relation(fields: [gym_id], references: [id])
+  roles         UserRole[]
+}
+
+model Role {
+  gym_id         Int 
+  role          String   @id @db.VarChar(20)
+  description   String?  @db.VarChar(60)
+  status        Int      @default(1)
+  created_date   DateTime 
+  modified_date  DateTime? 
+  created_by     String?  @db.VarChar(100)
+  modified_by    String?  @db.VarChar(100)
+
+  gym  Gym   @relation(fields: [gym_id], references: [id])
+  users         UserRole[]
+}
+
+model UserRole {
+  gym_id         Int 
+  id            String   @id @default(cuid())
+  user_email     String   @db.VarChar(100)
+  role_id      String   @db.VarChar(20)
+  status        Int      @default(1)
+  created_date   DateTime 
+  modified_date  DateTime? 
+  created_by     String?  @db.VarChar(100)
+  modified_by    String?  @db.VarChar(100)
+
+  gym  Gym   @relation(fields: [gym_id], references: [id])
+  user          User     @relation(fields: [user_email], references: [email])
+  role          Role     @relation(fields: [role_id], references: [role])
+
+  @@unique([user_email, role_id]) // un usuario no puede tener el mismo rol dos veces
+}
+
+model Gym {
+  id           Int      @id @default(autoincrement())
+  name         String   @db.VarChar(100)
+  address      String   @db.VarChar(255)
+  phone        String?  @db.VarChar(20)
+  status       Int      @default(1)
+  created_date  DateTime 
+  modified_date DateTime? 
+  created_by    String?  @db.VarChar(100)
+  modified_by   String?  @db.VarChar(100)
+
+  genders         Gender[]
+  idTypes         IdType[]
+  clients         Client[]
+  users           User[]
+  roles           Role[]
+  userRoles       UserRole[]
+  products        Product[]
+  categories      Category[]
+  sales           Sale[]
+  saleItems       SaleItem[]
+  memberships     Membership[]
+  usersMembership UserMembership[]
+}
+
+model Product {
+  gym_id         Int
+  id            Int        @id @default(autoincrement())
+  productName   String     @db.VarChar(150)
+  description   String?    @db.VarChar(255)
+  stock         Int        @default(0)
+  category_id    Int
+  status        Int        @default(1)
+  created_date   DateTime   
+  modified_date  DateTime   
+  created_by     String?    @db.VarChar(100)
+  modified_by    String?    @db.VarChar(100)
+
+  // Relaciones
+  category      Category   @relation(fields: [category_id], references: [id])
+  gym  Gym   @relation(fields: [gym_id], references: [id])
+  saleItems     SaleItem[]
+}
+
+model Category {
+  gym_id         Int
+  id            Int        @id @default(autoincrement())
+  name          String     @db.VarChar(100)
+  status        Int        @default(1)
+  created_date   DateTime   
+  modified_date  DateTime   
+  created_by     String?    @db.VarChar(100)
+  modified_by    String?    @db.VarChar(100)
+
+  // Relaciones
+  gym           Gym        @relation(fields: [gym_id], references: [id])
+  products      Product[]
+}
+
+model Sale {
+  gym_id         Int
+  id            Int        @id @default(autoincrement())
+  clientId      String     @db.VarChar(20)
+  total         Float      @default(0)
+  totalDiscount Float      @default(0)
+  status        Int        @default(1)
+  created_date   DateTime  
+  created_by     String?    @db.VarChar(100)
+
+  // Relaciones
+  client        Client     @relation(fields: [clientId], references: [id])
+  gym           Gym        @relation(fields: [gym_id], references: [id])
+  items         SaleItem[]
+}
+
+model SaleItem {
+  gym_id         Int
+  id            Int        @id @default(autoincrement())
+  sale_id        Int
+  produc_id     Int
+  price         Float
+  quantity      Int
+  discount      Float?     @default(0)
+  created_date   DateTime   
+  created_by     String?    @db.VarChar(100)
+
+  // Relaciones
+  sale          Sale       @relation(fields: [sale_id], references: [id])
+  product       Product    @relation(fields: [produc_id], references: [id])
+  gym           Gym        @relation(fields: [gym_id], references: [id])
+}
+
+model Membership {
+  gym_id         Int
+  id             Int       @id @default(autoincrement())
+  description    String
+  status         Int
+  price          Float
+  duration       Int
+  created_date   DateTime  @default(now())
+  modified_date  DateTime? @updatedAt
+  created_by     String?
+  modified_by    String?
+
+  gym            Gym       @relation(fields: [gym_id], references: [id])
+  user_membership UserMembership[]
+
+  @@map("membership")
+}
+
+model UserMembership {
+  id             Int       @id @default(autoincrement())
+  client_id      String
+  membership_id  Int
+  start_date     DateTime
+  end_date       DateTime
+  status         Int
+  created_date   DateTime  @default(now())
+  modified_date  DateTime? @updatedAt
+  created_by     String?
+  modified_by    String?
+  gym_id         Int
+
+  gym            Gym        @relation(fields: [gym_id], references: [id])
+  membership     Membership @relation(fields: [membership_id], references: [id])
+  client         Client @relation(fields: [client_id], references: [id])
+
+  @@map("user_membership")
 }
