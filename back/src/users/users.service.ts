@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { CreateUserDto } from './dto/create-user.dto';
 import { AssingRoleUser } from './dto/assign-role-user.dto';
-import { connect } from 'http2';
 
 const prisma = new PrismaClient();
 
