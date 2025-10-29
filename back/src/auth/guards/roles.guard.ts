@@ -32,8 +32,6 @@ export class RolesGuard implements CanActivate {
       where: { user_email: user.email },
       select: { role_id: true },
     });
-    console.log(userRoles);
-    console.log(user);
     
     if (!userRoles || userRoles.length === 0) {
       throw new ForbiddenException('El usuario no tiene roles asignados');

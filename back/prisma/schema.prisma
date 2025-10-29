@@ -117,7 +117,7 @@ model Role {
 
 model UserRole {
   gym_id         Int 
-  id            String   @id @default(cuid())
+  id            Int   @id @default(autoincrement())
   user_email     String   @db.VarChar(100)
   role_id      String   @db.VarChar(20)
   status        Int      @default(1)
