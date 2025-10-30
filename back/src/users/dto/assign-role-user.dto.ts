@@ -1,20 +1,27 @@
+import { ApiProperty, ApiPropertyOptional, ApiSchema } from "@nestjs/swagger";
 import { IsDate, IsEmail, IsNotEmpty } from "class-validator";
 
+@ApiSchema({ name: "AssginRoleUserRequest", description: "Description of the AssginRoleUserRequest" })
 export class AssingRoleUser {
 
+    @ApiProperty()
     @IsNotEmpty({ message: 'El id del gimnasio no puede estar vacío.' })
     gymId: number;
 
+    @ApiProperty()
     @IsNotEmpty({ message: 'El correo electronico no puede estar vacío' })
     @IsEmail()
     email: string;
 
+    @ApiProperty()
     @IsNotEmpty({ message: 'El rol no puede estar vacío' })
     role_id: string;
 
+    @ApiPropertyOptional()
     @IsDate()
     createdDate?: Date;
 
+    @ApiProperty()
     @IsNotEmpty({ message: 'El usuario que asigna el rol no puede estar vacío' })
     @IsEmail()
     createdBy: string;

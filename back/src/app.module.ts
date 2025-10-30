@@ -2,11 +2,12 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
 import { RolesModule } from './roles/roles.module';
 import { GymModule } from './gym/gym.module';
+import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 
 @Module({
   imports: [
@@ -28,6 +29,10 @@ import { GymModule } from './gym/gym.module';
     {
       provide: APP_GUARD,
       useClass: RolesGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseInterceptor,
     },
   ],
 })
