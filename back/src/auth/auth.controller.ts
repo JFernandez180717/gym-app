@@ -20,9 +20,6 @@ export class AuthController {
   @Post('register')
   async register(@Body() user: CreateUserDto) {
     const newUser = await this.authService.register(user);
-    if (!newUser) {
-      throw new HttpException({ error: 'Gimnasio no encontrado'}, HttpStatus.NOT_FOUND);
-    }
     return newUser;
   }
 

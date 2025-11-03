@@ -1,16 +1,21 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { CreateUserDto } from './dto/create-user.dto';
 import { AssingRoleUser } from './dto/assign-role-user.dto';
+import * as bcrypt from 'bcrypt';
+import { GymService } from 'src/gym/gym.service';
+import { RolesService } from 'src/roles/roles.service';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { Utils } from 'src/common/utils/utils.utils'; 
 
 const prisma = new PrismaClient();
 
 @Injectable()
 export class UsersService {
+  constructor(private readonly gymService: GymService, private readonly rolesService: RolesService) {}
   async create(data: CreateUserDto) {
-    const gym = await prisma.gym.findUnique({ where: { id: data.gymId } });
-    if (!gym) {
-      return null;
+    if (!await this.gymService.exists(data.gymId)) {
+      throw new HttpException({ error: 'Gimnasio no encontrado'}, HttpStatus.NOT_FOUND);
     }
     data.createdDate = new Date();
     return prisma.user.create({
@@ -38,9 +43,11 @@ export class UsersService {
   }
 
   async assignRole(data: AssingRoleUser) {
-    const gym = await prisma.gym.findUnique({ where: { id: data.gymId } });
-    if (!gym) {
-      return null;
+    if (!await this.gymService.exists(data.gymId)) {
+      throw new HttpException({ error: 'Gimnasio no encontrado'}, HttpStatus.NOT_FOUND);
+    }
+    if (!await this.rolesService.exists(data.role_id)) {
+      throw new HttpException({ error: 'Rol no encontrado'}, HttpStatus.NOT_FOUND);
     }
     data.createdDate = new Date()
     return prisma.userRole.create({
@@ -58,6 +65,33 @@ export class UsersService {
           connect: { role: data.role_id },
         }
       }
+    });
+  }
+
+  async exists(email: string) {
+    const user = this.findByEmail(email);
+    if (!user) {
+      return false;
+    }
+    return true;
+  }
+
+  async update(data: UpdateUserDto) {
+    if (!await this.exists(data.email)) {
+      throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND);
+    }
+    const user = await prisma.user.findUnique({
+      where: { email: data.email },
+      select: { password: true }
+    });
+    if (data.password !== undefined || !(await bcrypt.compare(data.password, user?.password))) {
+      throw new HttpException('La contraseña actual no es correcta.', HttpStatus.BAD_REQUEST);
+    }
+    prisma.user.update({
+      where: {
+        email: data.email
+      },
+      data: Utils.removeUndefined(data) 
     });
   }
 }

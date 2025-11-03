@@ -26,4 +26,12 @@ export class RolesService {
             }
         });
     }
+
+    async exists(roleId: string) {
+        const role = await prisma.role.findUnique({ where: { role: roleId } });
+        if (!role) {
+            return false;
+        }
+        return true;
+    }
 }

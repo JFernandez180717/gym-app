@@ -2,7 +2,7 @@ import { Body, Controller, Get, Patch, Post } from '@nestjs/common';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { UsersService } from './users.service';
 import { AssingRoleUser } from './dto/assign-role-user.dto';
-import { ApiBearerAuth, ApiBody, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { GetUserModel } from 'src/users/response/models/get-users.model';
 import { AssingRoleModel } from './response/models/assign-role.model';
 import { ApiResponseModel } from 'src/common/response/models/api-response.model';
@@ -22,7 +22,7 @@ export class UsersController {
         return this.usersService.findAll()
     }
 
-    @Post()
+    @Post('assignrole')
     @Roles('ADMIN')
     @ApiResponse({
         status: 201,

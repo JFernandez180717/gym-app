@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional, ApiSchema } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsOptional, MinLength, IsInt, MaxLength, IsDate } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, MinLength, IsInt, MaxLength, IsDate, IsIn } from 'class-validator';
 
 @ApiSchema({ name: "CreateUserRequest", description: "Description of the CreateUserRequest" })
 export class CreateUserDto {
@@ -39,6 +39,7 @@ export class CreateUserDto {
   @ApiProperty({ example: 1 })
   @IsInt()
   @IsNotEmpty({ message: 'El estado no puede estar vacio' })
+  @IsIn([0, 1], { message: 'El estado debe estar entre 0 y 1' })
   status: number;
 
   @ApiPropertyOptional()
