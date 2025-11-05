@@ -25,8 +25,10 @@ enum BloodTypeEnum {
 }
 
 model Gender {
-  gym_id         Int 
-  id             String   @id @db.VarChar(2)
+  company_id     Int
+  branch_id      Int
+  id             Int @id @default(autoincrement())
+  name           String   @db.VarChar(2)
   description    String   @db.VarChar(40)
   status         Int @default(1)
   created_date   DateTime  
@@ -34,14 +36,18 @@ model Gender {
   created_by     String? @db.VarChar(100)
   modified_by    String?  @db.VarChar(100)
 
-  gym  Gym   @relation(fields: [gym_id], references: [id])
+  company  Company   @relation(fields: [company_id], references: [id])
+  branch  Branch   @relation(fields: [branch_id], references: [id])
   clients  Client[]
+  @@unique([company_id, branch_id, name])
   @@map("gender")
 }
 
 model IdType {
-  gym_id         Int 
-  id              String   @id @db.VarChar(4)
+  company_id     Int 
+  branch_id      Int
+  id             Int @id @default(autoincrement())
+  name            String   @db.VarChar(4)
   description     String   @db.VarChar(40)
   status          Int @default(1)
   created_date    DateTime  
@@ -49,24 +55,28 @@ model IdType {
   created_by      String? @db.VarChar(100)
   modified_by     String? @db.VarChar(100)
 
-  gym  Gym   @relation(fields: [gym_id], references: [id])
+  company  Company   @relation(fields: [company_id], references: [id])
+  branch  Branch   @relation(fields: [branch_id], references: [id])
   clients  Client[]
+  @@unique([company_id, branch_id, name])
   @@map("id_type")
 }
 
 model Client {
-  gym_id         Int 
-  id             String   @id @db.VarChar(20)
+  company_id     Int 
+  branch_id      Int
+  id             Int   @id @default(autoincrement())
+  identification_number String  @db.VarChar(20)
   first_name     String   @db.VarChar(30)
   last_name      String   @db.VarChar(30)
   email          String?  @unique @db.VarChar(100)
   phone_number   String?  @db.VarChar(20)
   birth_day      DateTime 
-  gender_id      String @db.VarChar(2)
+  gender_id      Int 
   height         Float
   weight         Float
   blood_type     BloodTypeEnum
-  type_id        String @db.VarChar(4)
+  type_id        Int 
   address        String?  @db.VarChar(200)
   fingerprint    Bytes? 
   status         Int       @default(1)
@@ -75,18 +85,22 @@ model Client {
   created_by     String? @db.VarChar(100)
   modified_by    String?  @db.VarChar(100)
 
-  gym  Gym   @relation(fields: [gym_id], references: [id])
+  company  Company   @relation(fields: [company_id], references: [id])
+  branch  Branch   @relation(fields: [branch_id], references: [id])
   gender   Gender   @relation(fields: [gender_id], references: [id])
   id_type  IdType   @relation(fields: [type_id], references: [id])
   sales Sale[]
   usersMembership UserMembership[]
 
+  @@unique([company_id, branch_id, identification_number])
   @@map("client")
 }
 
 model User {
-  gym_id         Int 
-  email         String   @id @db.VarChar(100)
+  company_id     Int 
+  branch_id      Int
+  id             Int   @id @default(autoincrement())
+  email         String   @db.VarChar(100)
   password      String   @db.VarChar(100)
   firstName     String   @db.VarChar(30)
   lastName      String   @db.VarChar(30)
@@ -97,13 +111,19 @@ model User {
   created_by     String?  @db.VarChar(100)
   modified_by    String?  @db.VarChar(100)
 
-  gym  Gym   @relation(fields: [gym_id], references: [id])
+  company  Company   @relation(fields: [company_id], references: [id])
+  branch  Branch   @relation(fields: [branch_id], references: [id])
   roles         UserRole[]
+  
+  @@unique([company_id, branch_id, email])
+  @@map("user")
 }
 
 model Role {
-  gym_id         Int 
-  role          String   @id @db.VarChar(20)
+  company_id     Int 
+  branch_id      Int
+  id             Int   @id @default(autoincrement())
+  role          String   @db.VarChar(20)
   description   String?  @db.VarChar(60)
   status        Int      @default(1)
   created_date   DateTime 
@@ -111,31 +131,40 @@ model Role {
   created_by     String?  @db.VarChar(100)
   modified_by    String?  @db.VarChar(100)
 
-  gym  Gym   @relation(fields: [gym_id], references: [id])
+  company  Company   @relation(fields: [company_id], references: [id])
+  branch  Branch   @relation(fields: [branch_id], references: [id])
   users         UserRole[]
+  
+  @@unique([company_id, branch_id, role])
+  @@map("role")
 }
 
 model UserRole {
-  gym_id         Int 
-  id            Int   @id @default(autoincrement())
+  company_id     Int 
+  branch_id      Int
+  id             Int   @id @default(autoincrement())
+  user_id        Int 
+  role_id        Int
   user_email     String   @db.VarChar(100)
-  role_id      String   @db.VarChar(20)
+  role_name      String   @db.VarChar(20)
   status        Int      @default(1)
   created_date   DateTime 
   modified_date  DateTime? 
   created_by     String?  @db.VarChar(100)
   modified_by    String?  @db.VarChar(100)
 
-  gym  Gym   @relation(fields: [gym_id], references: [id])
-  user          User     @relation(fields: [user_email], references: [email])
-  role          Role     @relation(fields: [role_id], references: [role])
+  company  Company   @relation(fields: [company_id], references: [id])
+  branch  Branch   @relation(fields: [branch_id], references: [id])
+  user          User     @relation(fields: [user_id], references: [id])
+  role          Role     @relation(fields: [role_id], references: [id])
 
-  @@unique([user_email, role_id]) // un usuario no puede tener el mismo rol dos veces
+  @@unique([company_id, branch_id, user_email, role_name]) 
+  @@map("user_role")// un usuario no puede tener el mismo rol dos veces
 }
 
-model Gym {
+model Branch {
+  company_id     Int 
   id           Int      @id @default(autoincrement())
-  name         String   @db.VarChar(100)
   address      String   @db.VarChar(255)
   phone        String?  @db.VarChar(20)
   status       Int      @default(1)
@@ -144,6 +173,7 @@ model Gym {
   created_by    String?  @db.VarChar(100)
   modified_by   String?  @db.VarChar(100)
 
+  company  Company   @relation(fields: [company_id], references: [id])
   genders         Gender[]
   idTypes         IdType[]
   clients         Client[]
@@ -156,46 +186,88 @@ model Gym {
   saleItems       SaleItem[]
   memberships     Membership[]
   usersMembership UserMembership[]
+  
+  @@map("branch")
+}
+
+model Company {
+  id           Int      @id @default(autoincrement())
+  name         String   @db.VarChar(100)
+  address      String   @db.VarChar(255)
+  phone        String?  @db.VarChar(20)
+  status       Int      @default(1)
+  created_date  DateTime 
+  modified_date DateTime? 
+  created_by    String?  @db.VarChar(100)
+  modified_by   String?  @db.VarChar(100)
+
+  branches        Branch[]
+  genders         Gender[]
+  idTypes         IdType[]
+  clients         Client[]
+  users           User[]
+  roles           Role[]
+  userRoles       UserRole[]
+  products        Product[]
+  categories      Category[]
+  sales           Sale[]
+  saleItems       SaleItem[]
+  memberships     Membership[]
+  usersMembership UserMembership[]
+  
+  @@map("company")
 }
 
 model Product {
-  gym_id         Int
-  id            Int        @id @default(autoincrement())
-  productName   String     @db.VarChar(150)
+  company_id     Int 
+  branch_id      Int
+  id             Int   @id @default(autoincrement())
+  barcode        String @db.VarChar(200)
+  product_name   String     @db.VarChar(150)
   description   String?    @db.VarChar(255)
   stock         Int        @default(0)
   category_id    Int
   status        Int        @default(1)
   created_date   DateTime   
-  modified_date  DateTime   
+  modified_date  DateTime?   
   created_by     String?    @db.VarChar(100)
   modified_by    String?    @db.VarChar(100)
 
   // Relaciones
   category      Category   @relation(fields: [category_id], references: [id])
-  gym  Gym   @relation(fields: [gym_id], references: [id])
+  company  Company   @relation(fields: [company_id], references: [id])
+  branch  Branch   @relation(fields: [branch_id], references: [id])
   saleItems     SaleItem[]
+  
+  @@unique([company_id, branch_id, barcode]) 
+  @@map("product")
 }
 
 model Category {
-  gym_id         Int
+  company_id     Int 
+  branch_id      Int
   id            Int        @id @default(autoincrement())
   name          String     @db.VarChar(100)
   status        Int        @default(1)
   created_date   DateTime   
-  modified_date  DateTime   
+  modified_date  DateTime?   
   created_by     String?    @db.VarChar(100)
   modified_by    String?    @db.VarChar(100)
 
   // Relaciones
-  gym           Gym        @relation(fields: [gym_id], references: [id])
+  company  Company   @relation(fields: [company_id], references: [id])
+  branch  Branch   @relation(fields: [branch_id], references: [id])
   products      Product[]
+
+  @@unique([company_id, branch_id, name]) 
+  @@map("category")
 }
 
 model Sale {
-  gym_id         Int
+  company_id     Int 
+  branch_id      Int
   id            Int        @id @default(autoincrement())
-  clientId      String     @db.VarChar(20)
+  client_id      Int     
   total         Float      @default(0)
   totalDiscount Float      @default(0)
   status        Int        @default(1)
@@ -203,16 +275,19 @@ model Sale {
   created_by     String?    @db.VarChar(100)
 
   // Relaciones
-  client        Client     @relation(fields: [clientId], references: [id])
-  gym           Gym        @relation(fields: [gym_id], references: [id])
+  client        Client     @relation(fields: [client_id], references: [id])
+  company  Company   @relation(fields: [company_id], references: [id])
+  branch  Branch   @relation(fields: [branch_id], references: [id])
   items         SaleItem[]
+  
+  @@map("sale")
 }
 
 model SaleItem {
-  gym_id         Int
-  id            Int        @id @default(autoincrement())
+  company_id     Int 
+  branch_id      Int
   sale_id        Int
-  produc_id     Int
+  product_id     Int
   price         Float
   quantity      Int
   discount      Float?     @default(0)
@@ -221,13 +296,19 @@ model SaleItem {
 
   // Relaciones
   sale          Sale       @relation(fields: [sale_id], references: [id])
-  product       Product    @relation(fields: [produc_id], references: [id])
-  gym           Gym        @relation(fields: [gym_id], references: [id])
+  product       Product    @relation(fields: [product_id], references: [id])
+  company  Company   @relation(fields: [company_id], references: [id])
+  branch  Branch   @relation(fields: [branch_id], references: [id])
+  
+  @@unique([company_id, branch_id, sale_id, product_id]) 
+  @@map("sale_item")
 }
 
 model Membership {
-  gym_id         Int
-  id             Int       @id @default(autoincrement())
+  company_id     Int 
+  branch_id      Int
+  id             Int @id @default(autoincrement())
+  name           String @db.VarChar(30)
   description    String
   status         Int
   price          Float
@@ -237,15 +318,19 @@ model Membership {
   created_by     String?
   modified_by    String?
 
-  gym            Gym       @relation(fields: [gym_id], references: [id])
+  company  Company   @relation(fields: [company_id], references: [id])
+  branch  Branch   @relation(fields: [branch_id], references: [id])
   user_membership UserMembership[]
 
+  @@unique([company_id, branch_id, name]) 
   @@map("membership")
 }
 
 model UserMembership {
+  company_id     Int 
+  branch_id      Int
   id             Int       @id @default(autoincrement())
-  client_id      String
+  client_id      Int
   membership_id  Int
   start_date     DateTime
   end_date       DateTime
@@ -254,11 +339,12 @@ model UserMembership {
   modified_date  DateTime? @updatedAt
   created_by     String?
   modified_by    String?
-  gym_id         Int
 
-  gym            Gym        @relation(fields: [gym_id], references: [id])
+  company  Company   @relation(fields: [company_id], references: [id])
+  branch  Branch   @relation(fields: [branch_id], references: [id])
   membership     Membership @relation(fields: [membership_id], references: [id])
   client         Client @relation(fields: [client_id], references: [id])
 
+  @@unique([company_id, branch_id, client_id, membership_id]) 
   @@map("user_membership")
 }
