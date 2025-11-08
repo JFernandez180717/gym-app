@@ -3,9 +3,14 @@ import { IsEmail, IsIn, IsInt, IsNotEmpty, IsOptional, MaxLength, MinLength } fr
 
 export class UpdateUserDto {
     @ApiProperty()
-    @IsNotEmpty({ message: 'El id del gimnasio no puede estar vacío' })
-    @IsInt({ message: 'El id del gimnasio debe ser un numero' })
-    gymId: number;
+    @IsNotEmpty({ message: 'El id de la empresa no puede estar vacío' })
+    @IsInt({ message: 'El id de la empresa debe ser un numero' })
+    companyId: number;
+    
+    @ApiProperty()
+    @IsNotEmpty({ message: 'El id de la sede no puede estar vacío' })
+    @IsInt({ message: 'El id de la sede debe ser un numero' })
+    branchId: number;
 
     @ApiProperty()
     @IsNotEmpty({ message: 'El correo electronico no puede estar vacío' })

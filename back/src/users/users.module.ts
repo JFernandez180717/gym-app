@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
-import { GymService } from 'src/gym/gym.service';
 import { RolesService } from 'src/roles/roles.service';
+import { CompaniesService } from 'src/companies/companies.service';
 
 @Module({
-  providers: [UsersService, GymService, RolesService],
+  providers: [UsersService, CompaniesService, RolesService],
   controllers: [UsersController],
   exports: [UsersService],
 })

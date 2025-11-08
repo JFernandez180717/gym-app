@@ -8,6 +8,8 @@ import { RolesGuard } from './auth/guards/roles.guard';
 import { RolesModule } from './roles/roles.module';
 import { GymModule } from './gym/gym.module';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+import { BranchesModule } from './branches/branches.module';
+import { CompaniesModule } from './companies/companies.module';
 
 @Module({
   imports: [
@@ -18,7 +20,8 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor'
     UsersModule,
     AuthModule,
     RolesModule,
-    GymModule,
+    BranchesModule,
+    CompaniesModule,
   ],
   controllers: [],
   providers: [

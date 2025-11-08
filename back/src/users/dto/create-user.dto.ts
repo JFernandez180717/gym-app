@@ -4,9 +4,14 @@ import { IsEmail, IsNotEmpty, IsOptional, MinLength, IsInt, MaxLength, IsDate, I
 @ApiSchema({ name: "CreateUserRequest", description: "Description of the CreateUserRequest" })
 export class CreateUserDto {
   @ApiProperty()
-  @IsInt({ message: 'El id del Gimnasio debe ser un numero' })
-  @IsNotEmpty({ message: 'El id del Gimnasio no puede estar vacío' })
-  gymId: number;
+  @IsInt({ message: 'El id de la empresa debe ser un numero' })
+  @IsNotEmpty({ message: 'El id de la empresa no puede estar vacío' })
+  companyId: number;
+  
+  @ApiProperty()
+  @IsInt({ message: 'El id de la sede debe ser un numero' })
+  @IsNotEmpty({ message: 'El id de la sede no puede estar vacío' })
+  branchId: number;
 
   @ApiProperty()
   @IsEmail()

@@ -1,12 +1,18 @@
 import { ApiProperty, ApiPropertyOptional, ApiSchema } from "@nestjs/swagger";
-import { IsDate, IsEmail, IsNotEmpty } from "class-validator";
+import { IsDate, IsEmail, IsInt, IsNotEmpty } from "class-validator";
 
 @ApiSchema({ name: "AssginRoleUserRequest", description: "Description of the AssginRoleUserRequest" })
 export class AssingRoleUser {
 
     @ApiProperty()
-    @IsNotEmpty({ message: 'El id del gimnasio no puede estar vacío.' })
-    gymId: number;
+    @IsInt({ message: 'El id de la empresa debe ser un numero' })
+    @IsNotEmpty({ message: 'El id de la empresa no puede estar vacío.' })
+    companyId: number;
+    
+    @ApiProperty()
+    @IsInt({ message: 'El id de la sede debe ser un numero' })
+    @IsNotEmpty({ message: 'El id de la sede no puede estar vacío.' })
+    branchId: number;
 
     @ApiProperty()
     @IsNotEmpty({ message: 'El correo electronico no puede estar vacío' })
