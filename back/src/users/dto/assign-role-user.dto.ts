@@ -21,7 +21,7 @@ export class AssingRoleUser {
 
     @ApiProperty()
     @IsNotEmpty({ message: 'El rol no puede estar vacío' })
-    role_id: string;
+    roleName: string;
 
     @ApiPropertyOptional()
     @IsDate()

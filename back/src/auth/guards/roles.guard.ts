@@ -30,14 +30,14 @@ export class RolesGuard implements CanActivate {
     // Consultar roles asignados al usuario desde la BD
     const userRoles = await prisma.userRole.findMany({
       where: { user_email: user.email },
-      select: { role_id: true },
+      select: { role_id: true, role_name: true },
     });
     
     if (!userRoles || userRoles.length === 0) {
       throw new ForbiddenException('El usuario no tiene roles asignados');
     }
 
-    const roles = userRoles.map((ur) => ur.role_id);
+    const roles = userRoles.map((ur) => ur.role_name);
 
     const hasRole = requiredRoles.some((role) => roles.includes(role));
     if (!hasRole) {

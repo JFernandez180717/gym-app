@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { RolesController } from './roles.controller';
 import { RolesService } from './roles.service';
-import { GymModule } from 'src/gym/gym.module';
-import { GymService } from 'src/gym/gym.service';
+import { CompaniesService } from 'src/companies/companies.service';
+import { BranchesService } from 'src/branches/branches.service';
 
 @Module({
   controllers: [RolesController],
-  providers: [RolesService, GymService]
+  providers: [RolesService, CompaniesService, BranchesService]
 })
 export class RolesModule {}

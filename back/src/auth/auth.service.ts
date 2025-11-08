@@ -4,6 +4,9 @@ import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 @Injectable()
 export class AuthService {
@@ -27,8 +30,17 @@ export class AuthService {
     if (!user || !(await bcrypt.compare(loginDto.password, user.password))) {
       throw new UnauthorizedException('Credenciales inválidas');
     }
+    const userRoles = await prisma.userRole.findMany({
+      where: {
+        user_id: user.id,
+        company_id: user.company_id,
+        branch_id: user.branch_id
+      }
+    });
+
+    const userRoleNames = userRoles.map((e) => e.role_name);
 
     const payload = { sub: user.company_id, email: user.email, role: 'ADMIN' };
-    return { access_token: this.jwtService.sign(payload) };
+    return { access_token: this.jwtService.sign(payload), user: user, roles: userRoleNames }; 
   }
 }

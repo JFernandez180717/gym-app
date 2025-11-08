@@ -28,28 +28,50 @@ export class UsersService {
       throw new HttpException({ error: 'Sede no encontrada'}, HttpStatus.NOT_FOUND);
     }
     data.createdDate = new Date();
-    return prisma.user.create({
-      data: {
-        email: data.email,
-        password: data.password,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        phoneNumber: data.phoneNumber,
-        status: data.status,
-        created_date: data.createdDate,
-        company: {
-          connect: { id: data.companyId },
-        },
-        branch: {
-          connect: { 
-            company_id_branch_id: {
-              company_id: data.companyId,
-              branch_id: data.branchId
+    try {
+      return prisma.user.create({
+        data: {
+          email: data.email,
+          password: data.password,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          phoneNumber: data.phoneNumber,
+          status: data.status,
+          created_date: data.createdDate,
+          company: {
+            connect: { id: data.companyId },
+          },
+          branch: {
+            connect: { 
+              company_id_branch_id: {
+                company_id: data.companyId,
+                branch_id: data.branchId
+              }
             }
-          }
+          },
         },
-      },
-    });
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        switch (error.code) {
+          case 'P2002':
+            throw new HttpException({ error: 'El usuario ya existe'}, HttpStatus.CONFLICT);
+          case 'P2003':
+            throw new HttpException({ error: 'Referencia inválida'}, HttpStatus.BAD_REQUEST);
+          case 'P2011':
+            throw new HttpException({ error: 'Campos requeridos faltantes'}, HttpStatus.BAD_REQUEST);
+          case 'P2012':
+            throw new HttpException({ error: 'Faltan campos requeridos'}, HttpStatus.BAD_REQUEST);
+          default:
+            throw new HttpException({ error: `Error de base de datos: ${error.code}`}, HttpStatus.BAD_REQUEST);
+        }
+      } else if (error instanceof Prisma.PrismaClientValidationError) {
+        throw new HttpException({ error: 'Datos de entrada inválidos'}, HttpStatus.BAD_REQUEST);
+      } else {
+        console.error('Error inesperado:', error);
+        throw new HttpException({ error: 'Error inesperado'}, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    }
   }
 
   async findAll() {
@@ -67,7 +89,7 @@ export class UsersService {
     if (!await this.branchesService.exists(data.companyId, data.branchId)) {
       throw new HttpException({ error: 'Sede no encontrada'}, HttpStatus.NOT_FOUND);
     }
-    if (!await this.rolesService.exists(data.role_id)) {
+    if (!await this.rolesService.exists(data.companyId, data.branchId, data.roleName)) {
       throw new HttpException({ error: 'Rol no encontrado'}, HttpStatus.NOT_FOUND);
     }
     data.createdDate = new Date()
@@ -104,7 +126,7 @@ export class UsersService {
               company_id_branch_id_role: {
                 company_id: data.companyId,
                 branch_id: data.branchId,
-                role: data.role_id 
+                role: data.roleName
               }
             },
           }
