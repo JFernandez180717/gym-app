@@ -40,7 +40,7 @@ export class AuthService {
 
     const userRoleNames = userRoles.map((e) => e.role_name);
 
-    const payload = { sub: user.company_id, email: user.email, role: 'ADMIN' };
+    const payload = { sub: user.email, company_id: user.company_id, branch_id: user.branch_id };
     return { access_token: this.jwtService.sign(payload), user: user, roles: userRoleNames }; 
   }
 }

@@ -79,7 +79,11 @@ export class UsersService {
   }
 
   async findByEmail(email: string) {
-    return prisma.user.findFirst({ where: { email } });
+    return prisma.user.findFirst({ 
+      where: {
+        email
+      } 
+    });
   }
 
   async assignRole(data: AssingRoleUser) {
@@ -97,7 +101,7 @@ export class UsersService {
       return prisma.userRole.create({
         data: {
           user_email: data.email,
-          role_name: 'ADMIN',
+          role_name: data.roleName,
           status: 1,
           created_date: data.createdDate,
           created_by: data.createdBy,
