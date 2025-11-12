@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional, ApiSchema } from "@nestjs/swagger";
-import { IsDate, IsEmail, IsInt, IsNotEmpty } from "class-validator";
+import { IsDate, IsEmail, IsInt, IsNotEmpty, IsOptional } from "class-validator";
 
 @ApiSchema({ name: "AssginRoleUserRequest", description: "Description of the AssginRoleUserRequest" })
 export class AssingRoleUser {
@@ -24,6 +24,7 @@ export class AssingRoleUser {
     roleName: string;
 
     @ApiPropertyOptional()
+    @IsOptional()
     @IsDate()
     createdDate?: Date;
 
