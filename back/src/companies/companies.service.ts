@@ -6,11 +6,11 @@ const prisma = new PrismaClient();
 @Injectable()
 export class CompaniesService {
     async findUnique(companyId: number) {
-        return prisma.company.findUnique({ where: { id: companyId} });
+        return await prisma.company.findUnique({ where: { id: companyId} });
     }
 
     async exists(companyId: number) {
-        const company = this.findUnique(companyId);
+        const company = await this.findUnique(companyId);
         if (!company) {
             return false;
         }

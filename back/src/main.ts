@@ -23,18 +23,6 @@ async function bootstrap() {
       whitelist: true,
       transform: true,
       forbidNonWhitelisted: false,
-      exceptionFactory: (validationErrors) => {
-        const errors = validationErrors.map(err => ({
-          property: err.property,
-          constraints: err.constraints ? Object.values(err.constraints) : [],
-        }));
-
-        return new BadRequestException({
-          statusCode: 400,
-          message: 'Error de validación',
-          errors,
-        });
-      },
     }),
   );
   app.useGlobalFilters(new HttpExceptionFilter());
