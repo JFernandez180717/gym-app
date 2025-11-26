@@ -34,7 +34,6 @@ export class BranchesService {
       }
       try {
         return prisma.$transaction(async (tx) => {
-          // 1️⃣ Buscar el último branch_number de esa empresa
           const lastBranch = await tx.branch.findFirst({
             where: { company_id: data.companyId },
             orderBy: { branch_id: 'desc' },
@@ -43,7 +42,6 @@ export class BranchesService {
 
           const nextBranchNumber = (lastBranch?.branch_id || 0) + 1;
 
-          // 2️⃣ Crear la nueva branch
           const newBranch = await tx.branch.create({
             data: {
             branch_id: nextBranchNumber,

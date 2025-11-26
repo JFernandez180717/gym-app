@@ -3,9 +3,19 @@ import { AppModule } from './app.module';
 import { ValidationPipe, BadRequestException } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.use(cookieParser());
+  app.enableCors({
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
+  });
+
 
   const config = new DocumentBuilder()
     .setTitle('Gym App')
@@ -26,6 +36,7 @@ async function bootstrap() {
     }),
   );
   app.useGlobalFilters(new HttpExceptionFilter());
+
 
   await app.listen(process.env.PORT ?? 3000);
 }

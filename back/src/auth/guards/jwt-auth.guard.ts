@@ -9,6 +9,18 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     super();
   }
 
+  getRequest(context: ExecutionContext) {
+    const req = context.switchToHttp().getRequest();
+
+    // Si el JWT viene en la cookie, añadirlo como Authorization
+    const token = req.cookies?.auth_token;
+    if (token) {
+      req.headers.authorization = `Bearer ${token}`;
+    }
+
+    return req;
+  }
+
   canActivate(context: ExecutionContext) {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
