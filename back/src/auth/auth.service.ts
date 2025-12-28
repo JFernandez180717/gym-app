@@ -32,7 +32,7 @@ export class AuthService {
     }
     const userRoles = await prisma.userRole.findMany({
       where: {
-        user_id: user.id,
+        user_email: user.email,
         company_id: user.company_id,
         branch_id: user.branch_id
       }

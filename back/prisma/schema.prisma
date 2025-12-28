@@ -13,7 +13,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum BloodTypeEnum {
+enum blood_type_enum {
   A_POS
   A_NEG
   B_POS
@@ -24,11 +24,26 @@ enum BloodTypeEnum {
   O_NEG
 }
 
+enum type_product_sale_enum {
+  P
+  M
+}
+
+enum transaction_type_enum {
+  INCOME
+  EXPENSE
+}
+
+enum transaction_category_enum {
+  SALE
+  SUPPLIER_PAYMENT
+  MISC_EXPENSE
+}
+
 model Gender {
   company_id     Int
   branch_id      Int
-  id             Int @id @default(autoincrement())
-  name           String   @db.VarChar(2)
+  name           String @id  @db.VarChar(2)
   description    String   @db.VarChar(40)
   status         Int @default(1)
   created_date   DateTime  
@@ -37,7 +52,7 @@ model Gender {
   modified_by    String?  @db.VarChar(100)
 
   company  Company   @relation(fields: [company_id], references: [id])
-  branch  Branch   @relation(fields: [branch_id], references: [id])
+  branch  Branch   @relation(fields: [company_id, branch_id], references: [company_id, branch_id])
   clients  Client[]
   @@unique([company_id, branch_id, name])
   @@map("gender")
@@ -46,8 +61,7 @@ model Gender {
 model IdType {
   company_id     Int 
   branch_id      Int
-  id             Int @id @default(autoincrement())
-  name            String   @db.VarChar(4)
+  name            String @id  @db.VarChar(4)
   description     String   @db.VarChar(40)
   status          Int @default(1)
   created_date    DateTime  
@@ -56,7 +70,7 @@ model IdType {
   modified_by     String? @db.VarChar(100)
 
   company  Company   @relation(fields: [company_id], references: [id])
-  branch  Branch   @relation(fields: [branch_id], references: [id])
+  branch  Branch   @relation(fields: [company_id, branch_id], references: [company_id, branch_id])
   clients  Client[]
   @@unique([company_id, branch_id, name])
   @@map("id_type")
@@ -65,18 +79,17 @@ model IdType {
 model Client {
   company_id     Int 
   branch_id      Int
-  id             Int   @id @default(autoincrement())
-  identification_number String  @db.VarChar(20)
+  identification_number String @id @db.VarChar(20)
   first_name     String   @db.VarChar(30)
   last_name      String   @db.VarChar(30)
   email          String?  @unique @db.VarChar(100)
   phone_number   String?  @db.VarChar(20)
   birth_day      DateTime 
-  gender_id      Int 
+  gender_id      String @db.VarChar(2) 
   height         Float
   weight         Float
-  blood_type     BloodTypeEnum
-  type_id        Int 
+  blood_type     blood_type_enum
+  type_id        String @db.VarChar(4)
   address        String?  @db.VarChar(200)
   fingerprint    Bytes? 
   status         Int       @default(1)
@@ -86,11 +99,11 @@ model Client {
   modified_by    String?  @db.VarChar(100)
 
   company  Company   @relation(fields: [company_id], references: [id])
-  branch  Branch   @relation(fields: [branch_id], references: [id])
-  gender   Gender   @relation(fields: [gender_id], references: [id])
-  id_type  IdType   @relation(fields: [type_id], references: [id])
+  branch  Branch   @relation(fields: [company_id, branch_id], references: [company_id, branch_id])
+  gender   Gender   @relation(fields: [company_id, branch_id, gender_id], references: [company_id, branch_id, name])
+  id_type  IdType   @relation(fields: [company_id, branch_id, type_id], references: [company_id, branch_id, name])
   sales Sale[]
-  usersMembership UserMembership[]
+  client_membership ClientMembership[]
 
   @@unique([company_id, branch_id, identification_number])
   @@map("client")
@@ -99,8 +112,7 @@ model Client {
 model User {
   company_id     Int 
   branch_id      Int
-  id             Int   @id @default(autoincrement())
-  email         String   @db.VarChar(100)
+  email         String @id  @db.VarChar(100)
   password      String   @db.VarChar(100)
   firstName     String   @db.VarChar(30)
   lastName      String   @db.VarChar(30)
@@ -112,8 +124,10 @@ model User {
   modified_by    String?  @db.VarChar(100)
 
   company  Company   @relation(fields: [company_id], references: [id])
-  branch  Branch   @relation(fields: [branch_id], references: [id])
+  branch  Branch   @relation(fields: [company_id, branch_id], references: [company_id, branch_id])
   roles         UserRole[]
+  cash_register         CashRegister[]
+  user_cash_register         UserCashRegister[]
   
   @@unique([company_id, branch_id, email])
   @@map("user")
@@ -122,8 +136,7 @@ model User {
 model Role {
   company_id     Int 
   branch_id      Int
-  id             Int   @id @default(autoincrement())
-  role          String   @db.VarChar(20)
+  role          String  @id @db.VarChar(20)
   description   String?  @db.VarChar(60)
   status        Int      @default(1)
   created_date   DateTime 
@@ -132,7 +145,7 @@ model Role {
   modified_by    String?  @db.VarChar(100)
 
   company  Company   @relation(fields: [company_id], references: [id])
-  branch  Branch   @relation(fields: [branch_id], references: [id])
+  branch  Branch   @relation(fields: [company_id, branch_id], references: [company_id, branch_id])
   users         UserRole[]
   
   @@unique([company_id, branch_id, role])
@@ -143,8 +156,6 @@ model UserRole {
   company_id     Int 
   branch_id      Int
   id             Int   @id @default(autoincrement())
-  user_id        Int 
-  role_id        Int
   user_email     String   @db.VarChar(100)
   role_name      String   @db.VarChar(20)
   status        Int      @default(1)
@@ -154,9 +165,9 @@ model UserRole {
   modified_by    String?  @db.VarChar(100)
 
   company  Company   @relation(fields: [company_id], references: [id])
-  branch  Branch   @relation(fields: [branch_id], references: [id])
-  user          User     @relation(fields: [user_id], references: [id])
-  role          Role     @relation(fields: [role_id], references: [id])
+  branch  Branch   @relation(fields: [company_id, branch_id], references: [company_id, branch_id])
+  user          User     @relation(fields: [company_id, branch_id, user_email], references: [company_id, branch_id, email])
+  role          Role     @relation(fields: [company_id, branch_id, role_name], references: [company_id, branch_id, role])
 
   @@unique([company_id, branch_id, user_email, role_name]) 
   @@map("user_role")// un usuario no puede tener el mismo rol dos veces
@@ -164,7 +175,6 @@ model UserRole {
 
 model Branch {
   company_id     Int 
-  id           Int      @id @default(autoincrement())
   branch_id    Int
   address      String   @db.VarChar(255)
   phone        String?  @db.VarChar(20)
@@ -186,7 +196,11 @@ model Branch {
   sales           Sale[]
   saleItems       SaleItem[]
   memberships     Membership[]
-  usersMembership UserMembership[]
+  client_membership ClientMembership[]
+  cash_box CashBox[]
+  cash_register CashRegister[]
+  cash_register_transaction CashRegisterTransaction[]
+  user_cash_register UserCashRegister[]
   
   @@unique([company_id, branch_id]) 
   @@map("branch")
@@ -213,7 +227,11 @@ model Company {
   sales           Sale[]
   saleItems       SaleItem[]
   memberships     Membership[]
-  usersMembership UserMembership[]
+  client_membership ClientMembership[]
+  cash_box CashBox[]
+  cash_register CashRegister[]
+  cash_register_transaction CashRegisterTransaction[]
+  user_cash_register UserCashRegister[]
   
   @@map("company")
 }
@@ -221,7 +239,7 @@ model Company {
 model Product {
   company_id     Int 
   branch_id      Int
-  id             Int   @id @default(autoincrement())
+  id             Int   @id 
   barcode        String @db.VarChar(200)
   product_name   String     @db.VarChar(150)
   description   String?    @db.VarChar(255)
@@ -234,19 +252,19 @@ model Product {
   modified_by    String?    @db.VarChar(100)
 
   // Relaciones
-  category      Category   @relation(fields: [category_id], references: [id])
+  category      Category   @relation(fields: [company_id, branch_id, category_id], references: [company_id, branch_id, id])
   company  Company   @relation(fields: [company_id], references: [id])
-  branch  Branch   @relation(fields: [branch_id], references: [id])
+  branch  Branch   @relation(fields: [company_id, branch_id], references: [company_id, branch_id])
   saleItems     SaleItem[]
   
-  @@unique([company_id, branch_id, barcode]) 
+  @@unique([company_id, branch_id, id]) 
   @@map("product")
 }
 
 model Category {
   company_id     Int 
   branch_id      Int
-  id            Int        @id @default(autoincrement())
+  id            Int        @id 
   name          String     @db.VarChar(100)
   status        Int        @default(1)
   created_date   DateTime   
@@ -256,28 +274,30 @@ model Category {
 
   // Relaciones
   company  Company   @relation(fields: [company_id], references: [id])
-  branch  Branch   @relation(fields: [branch_id], references: [id])
+  branch  Branch   @relation(fields: [company_id, branch_id], references: [company_id, branch_id])
   products      Product[]
 
-  @@unique([company_id, branch_id, name]) 
+  @@unique([company_id, branch_id, id]) 
   @@map("category")
 }
 
 model Sale {
   company_id     Int 
   branch_id      Int
-  id            Int        @id @default(autoincrement())
-  client_id      Int     
+  id            Int        @id 
+  client_id      String     @db.VarChar(20)
   total         Float      @default(0)
   totalDiscount Float      @default(0)
   status        Int        @default(1)
   created_date   DateTime  
   created_by     String?    @db.VarChar(100)
 
+  @@unique([company_id, branch_id, id])
+
   // Relaciones
-  client        Client     @relation(fields: [client_id], references: [id])
+  client        Client     @relation(fields: [company_id, branch_id, client_id], references: [company_id, branch_id, identification_number])
   company  Company   @relation(fields: [company_id], references: [id])
-  branch  Branch   @relation(fields: [branch_id], references: [id])
+  branch  Branch   @relation(fields: [company_id, branch_id], references: [company_id, branch_id])
   items         SaleItem[]
   
   @@map("sale")
@@ -287,7 +307,10 @@ model SaleItem {
   company_id     Int 
   branch_id      Int
   sale_id        Int
-  product_id     Int
+  item_id        Int
+  type_sale      type_product_sale_enum
+  product_id     Int?
+  membership_id  Int?
   price         Float
   quantity      Int
   discount      Float?     @default(0)
@@ -295,19 +318,19 @@ model SaleItem {
   created_by     String?    @db.VarChar(100)
 
   // Relaciones
-  sale          Sale       @relation(fields: [sale_id], references: [id])
-  product       Product    @relation(fields: [product_id], references: [id])
+  sale          Sale       @relation(fields: [company_id, branch_id, sale_id], references: [company_id, branch_id, id])
+  product       Product?    @relation(fields: [company_id, branch_id, product_id], references: [company_id, branch_id, id])
   company  Company   @relation(fields: [company_id], references: [id])
-  branch  Branch   @relation(fields: [branch_id], references: [id])
-  
-  @@unique([company_id, branch_id, sale_id, product_id]) 
+  branch  Branch   @relation(fields: [company_id, branch_id], references: [company_id, branch_id])
+  membership  Membership?   @relation(fields: [company_id, branch_id, membership_id], references: [company_id, branch_id, id])
+  @@unique([company_id, branch_id, sale_id, item_id])
   @@map("sale_item")
 }
 
 model Membership {
   company_id     Int 
   branch_id      Int
-  id             Int @id @default(autoincrement())
+  id             Int @id 
   name           String @db.VarChar(30)
   description    String
   status         Int
@@ -319,18 +342,19 @@ model Membership {
   modified_by    String?
 
   company  Company   @relation(fields: [company_id], references: [id])
-  branch  Branch   @relation(fields: [branch_id], references: [id])
-  user_membership UserMembership[]
+  branch  Branch   @relation(fields: [company_id, branch_id], references: [company_id, branch_id])
+  client_membership ClientMembership[]
+  sales SaleItem[]
 
-  @@unique([company_id, branch_id, name]) 
+  @@unique([company_id, branch_id, id]) 
   @@map("membership")
 }
 
-model UserMembership {
+model ClientMembership {
   company_id     Int 
   branch_id      Int
   id             Int       @id @default(autoincrement())
-  client_id      Int
+  client_id      String   @db.VarChar(20)
   membership_id  Int
   start_date     DateTime
   end_date       DateTime
@@ -341,10 +365,101 @@ model UserMembership {
   modified_by    String?
 
   company  Company   @relation(fields: [company_id], references: [id])
-  branch  Branch   @relation(fields: [branch_id], references: [id])
-  membership     Membership @relation(fields: [membership_id], references: [id])
-  client         Client @relation(fields: [client_id], references: [id])
+  branch  Branch   @relation(fields: [company_id, branch_id], references: [company_id, branch_id])
+  membership     Membership @relation(fields: [company_id, branch_id, membership_id], references: [company_id, branch_id, id])
+  client         Client @relation(fields: [company_id, branch_id, client_id], references: [company_id, branch_id, identification_number])
 
   @@unique([company_id, branch_id, client_id, membership_id]) 
-  @@map("user_membership")
+  @@map("client_membership")
+}
+
+model CashBox {
+  company_id Int
+  branch_id Int
+  id Int @id @default(autoincrement())
+  name String @db.VarChar(100)
+  status Int
+  created_date   DateTime  @default(now())
+  modified_date  DateTime? @updatedAt
+  created_by     String?
+  modified_by    String?
+
+  company  Company   @relation(fields: [company_id], references: [id])
+  branch  Branch   @relation(fields: [company_id, branch_id], references: [company_id, branch_id])
+
+  cash_register CashRegister[]
+  cash_register_transaction CashRegisterTransaction[]
+  user_cash_register UserCashRegister[]
+
+  @@unique([company_id, branch_id, id])
+  @@map("cash_box")
+}
+
+model CashRegister {
+  company_id Int
+  branch_id Int
+  cash_box_id Int
+  id Int 
+  user_email String @db.VarChar(100)
+  initial_amount Float
+  theoretical_amount Float
+  final_amount Float
+  diference Float
+  opened_at DateTime
+  closed_at DateTime?
+  observations String @db.VarChar(255)
+  status Int
+  created_date   DateTime  @default(now())
+  modified_date  DateTime? @updatedAt
+  created_by     String?
+  modified_by    String?
+
+  company  Company   @relation(fields: [company_id], references: [id])
+  branch  Branch   @relation(fields: [company_id, branch_id], references: [company_id, branch_id])
+  cash_box  CashBox   @relation(fields: [company_id, branch_id, cash_box_id], references: [company_id, branch_id, id])
+  user User @relation(fields: [company_id, branch_id, user_email], references: [company_id, branch_id, email])
+
+  transactions CashRegisterTransaction[]
+  @@unique([company_id, branch_id, cash_box_id, id])
+  @@map("cash_register")
+}
+
+model CashRegisterTransaction {
+  company_id Int
+  branch_id Int
+  cash_box_id Int
+  cash_register_id Int
+  consec Int 
+  type transaction_type_enum
+  category transaction_category_enum
+  amount Float
+  description String @db.VarChar(255)
+  created_date   DateTime  @default(now())
+  created_by     String
+
+  company  Company   @relation(fields: [company_id], references: [id])
+  branch  Branch   @relation(fields: [company_id, branch_id], references: [company_id, branch_id])
+  cash_box  CashBox   @relation(fields: [company_id, branch_id, cash_box_id], references: [company_id, branch_id, id])
+  cash_register  CashRegister   @relation(fields: [company_id, branch_id, cash_box_id, cash_register_id], references: [company_id, branch_id, cash_box_id, id], map: "cash_reg_trans_companyid_branchid_cashboxid_cashregid_fkey")
+  @@unique([company_id, branch_id, cash_box_id, cash_register_id, consec])
+  @@map("cash_register_transaction")
+}
+
+model UserCashRegister {
+  company_id Int
+  branch_id Int
+  cash_box_id Int
+  user_email String @db.VarChar(100)
+  status Int
+  created_date   DateTime  @default(now())
+  modified_date  DateTime? @updatedAt
+  created_by     String?
+  modified_by    String?
+
+  company  Company   @relation(fields: [company_id], references: [id])
+  branch  Branch   @relation(fields: [company_id, branch_id], references: [company_id, branch_id])
+  cash_box  CashBox   @relation(fields: [company_id, branch_id, cash_box_id], references: [company_id, branch_id, id])
+  user User @relation(fields: [company_id, branch_id, user_email], references: [company_id, branch_id, email])
+  @@unique([company_id, branch_id, cash_box_id, user_email])
+  @@map("user_cash_register")
 }

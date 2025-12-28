@@ -105,35 +105,8 @@ export class UsersService {
           status: 1,
           created_date: data.createdDate,
           created_by: data.createdBy,
-          company: {
-            connect: { id: data.companyId },
-          },
-          branch: {
-            connect: { 
-              company_id_branch_id: {
-                company_id: data.companyId,
-                branch_id: data.branchId
-              }
-            }
-          },
-          user: {
-            connect: { 
-              company_id_branch_id_email: {
-                company_id: data.companyId,
-                branch_id: data.branchId,
-                email: data.email
-              }
-            },
-          },
-          role: {
-            connect: { 
-              company_id_branch_id_role: {
-                company_id: data.companyId,
-                branch_id: data.branchId,
-                role: data.roleName
-              }
-            },
-          }
+          company_id: data.companyId,
+          branch_id: data.branchId,
         }
       });
     } catch (error) {
