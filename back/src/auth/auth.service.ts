@@ -5,6 +5,7 @@ import { UsersService } from '../users/users.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
 import { PrismaClient } from '@prisma/client';
+import { UserMapper } from './mappers/UserMapper';
 
 const prisma = new PrismaClient();
 
@@ -13,6 +14,7 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private userMapper: UserMapper
   ) {}
 
   async register(user: CreateUserDto) {
@@ -30,6 +32,7 @@ export class AuthService {
     if (!user || !(await bcrypt.compare(loginDto.password, user.password))) {
       throw new UnauthorizedException('Credenciales inválidas');
     }
+    const userResponse = this.userMapper.toDto(user);
     const userRoles = await prisma.userRole.findMany({
       where: {
         user_email: user.email,
@@ -41,6 +44,6 @@ export class AuthService {
     const userRoleNames = userRoles.map((e) => e.role_name);
 
     const payload = { sub: user.email, company_id: user.company_id, branch_id: user.branch_id };
-    return { access_token: this.jwtService.sign(payload), user: user, roles: userRoleNames }; 
+    return { access_token: this.jwtService.sign(payload), user: userResponse, roles: userRoleNames }; 
   }
 }
