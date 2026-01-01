@@ -1,8 +1,10 @@
 import { ApiProperty } from "@nestjs/swagger";
 
-export class CreateRoleModel {
+export class RoleModel {
     @ApiProperty()
-    gym_id: number;
+    company_id: number;
+    @ApiProperty()
+    branch_id: number;
     @ApiProperty()
     role: string;
     @ApiProperty()

@@ -3,9 +3,10 @@ import { RolesController } from './roles.controller';
 import { RolesService } from './roles.service';
 import { CompaniesService } from 'src/companies/companies.service';
 import { BranchesService } from 'src/branches/branches.service';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   controllers: [RolesController],
-  providers: [RolesService, CompaniesService, BranchesService]
+  providers: [RolesService, CompaniesService, BranchesService, JwtService]
 })
 export class RolesModule {}

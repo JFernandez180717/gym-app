@@ -16,12 +16,12 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Public()
-  //@Roles('ADMIN')
+  @Roles('ADMIN')
   @ApiResponse({
     status: 201,
     type: ApiResponseModel(GetUserModel)
   })
-  //@ApiBearerAuth()
+  @ApiBearerAuth()
   @Post('register')
   async register(@Body() user: CreateUserDto) {
     const newUser = await this.authService.register(user);

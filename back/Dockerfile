@@ -25,5 +25,5 @@ COPY --from=builder /app/prisma ./prisma
 
 EXPOSE 3000
 
-# Usamos un script de inicio (explicado abajo)
+# Usamos un script de inicio
 CMD ["npx", "prisma", "migrate", "deploy", "&&", "node", "dist/main"]

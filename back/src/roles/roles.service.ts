@@ -3,12 +3,18 @@ import { Prisma, PrismaClient } from '@prisma/client';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { CompaniesService } from 'src/companies/companies.service';
 import { BranchesService } from 'src/branches/branches.service';
+import { JwtService } from '@nestjs/jwt';
 
 const prisma = new PrismaClient();
 
 @Injectable()
 export class RolesService {
-  constructor(private readonly companiesService: CompaniesService, private readonly branchesService: BranchesService) {}
+  constructor(
+    private readonly companiesService: CompaniesService, 
+    private readonly branchesService: BranchesService,
+    private readonly jwtService: JwtService
+  ) {}
+
   async create(data: CreateRoleDto){
     if (!await this.companiesService.exists(data.companyId)) {
       throw new NotFoundException({ error: 'Empresa no encontrado'});
@@ -75,5 +81,20 @@ export class RolesService {
           return false;
       }
       return true;
+  }
+
+  async findAll(token: string) {
+    const decodeToken = await this.jwtService.decode(token);
+    
+    return await prisma.role.findMany({
+      where: {
+        company_id: decodeToken.company_id,
+        branch_id: decodeToken.branch_id
+      }
+    });    
+  }
+
+  async findAllActive() {
+    
   }
 }

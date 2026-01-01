@@ -4,9 +4,10 @@ import { UsersController } from './users.controller';
 import { RolesService } from 'src/roles/roles.service';
 import { CompaniesService } from 'src/companies/companies.service';
 import { BranchesService } from 'src/branches/branches.service';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
-  providers: [UsersService, CompaniesService, RolesService, BranchesService],
+  providers: [UsersService, CompaniesService, RolesService, BranchesService, JwtService],
   controllers: [UsersController],
   exports: [UsersService],
 })
