@@ -3,7 +3,6 @@ import { Prisma, PrismaClient } from '@prisma/client';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { CompaniesService } from 'src/companies/companies.service';
 import { BranchesService } from 'src/branches/branches.service';
-import { JwtService } from '@nestjs/jwt';
 
 const prisma = new PrismaClient();
 
@@ -11,8 +10,7 @@ const prisma = new PrismaClient();
 export class RolesService {
   constructor(
     private readonly companiesService: CompaniesService, 
-    private readonly branchesService: BranchesService,
-    private readonly jwtService: JwtService
+    private readonly branchesService: BranchesService
   ) {}
 
   async create(data: CreateRoleDto){
@@ -83,18 +81,23 @@ export class RolesService {
       return true;
   }
 
-  async findAll(token: string) {
-    const decodeToken = await this.jwtService.decode(token);
+  async findAll(companyId: number, branchId: number) {
     
     return await prisma.role.findMany({
       where: {
-        company_id: decodeToken.company_id,
-        branch_id: decodeToken.branch_id
+        company_id: companyId,
+        branch_id: branchId
       }
     });    
   }
 
-  async findAllActive() {
-    
+  async findAllByStatus(companyId: number, branchId: number, status: number) {
+    return await prisma.role.findMany({
+      where: {
+        company_id: companyId,
+        branch_id: branchId,
+        status: status
+      }
+    });
   }
 }
