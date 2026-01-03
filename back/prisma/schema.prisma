@@ -114,9 +114,9 @@ model User {
   branch_id      Int
   email         String @id  @db.VarChar(100)
   password      String   @db.VarChar(100)
-  firstName     String   @db.VarChar(30)
-  lastName      String   @db.VarChar(30)
-  phoneNumber   String?  @db.VarChar(20)
+  first_name     String   @db.VarChar(30)
+  last_name      String   @db.VarChar(30)
+  phone_number   String?  @db.VarChar(20)
   status        Int      @default(1)
   created_date   DateTime 
   modified_date  DateTime? 
