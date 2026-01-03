@@ -5,3 +5,4 @@ data.txt
 /back/.env
 .vscode
 scripts
+.env

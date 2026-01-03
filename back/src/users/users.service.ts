@@ -33,9 +33,9 @@ export class UsersService {
         data: {
           email: data.email,
           password: data.password,
-          firstName: data.firstName,
-          lastName: data.lastName,
-          phoneNumber: data.phoneNumber,
+          first_name: data.firstName,
+          last_name: data.lastName,
+          phone_number: data.phoneNumber,
           status: data.status,
           created_date: data.createdDate,
           company: {

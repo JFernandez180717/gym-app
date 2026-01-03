@@ -9,9 +9,9 @@ export class UserMapper {
     dto.company_id = entity.company_id;
     dto.branch_id = entity.branch_id;
     dto.email = entity.email;
-    dto.firstName = entity.firstName;
-    dto.lastName = entity.lastName;
-    dto.phone = entity.phoneNumber!;
+    dto.firstName = entity.first_name;
+    dto.lastName = entity.last_name;
+    dto.phone = entity.phone_number!;
     dto.status  = entity.status;
 
     return dto;
