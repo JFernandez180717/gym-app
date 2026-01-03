@@ -4,8 +4,6 @@ export class CreateBranchModel {
     @ApiProperty()
     companyId: number;
     @ApiProperty()
-    id: number;
-    @ApiProperty()
     branchId: number;
     @ApiProperty()
     address: string;

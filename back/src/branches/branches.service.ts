@@ -1,13 +1,23 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Prisma, PrismaClient } from '@prisma/client';
 import { CompaniesService } from 'src/companies/companies.service';
 import { CreateBranchDto } from './dto/create-branch.dto';
+import { UpdateBranchDto } from './dto/update-branch.dto';
+import { Utils } from 'src/common/utils/utils.utils';
 
 const prisma = new PrismaClient();
 
 @Injectable()
 export class BranchesService {
     constructor(private readonly companiesService: CompaniesService) {}
+
+    async findAll(companyId: number) {
+      return await prisma.branch.findMany({
+        where: {
+          company_id: companyId
+        }
+      });
+    }
 
     async findByIdBranch(companyId: number, branchId: number) {
         return await prisma.branch.findUnique({
@@ -28,14 +38,11 @@ export class BranchesService {
         return true;
     }
 
-    async create(data: CreateBranchDto) {
-      if (!await this.companiesService.exists(data.companyId)) {
-        throw new HttpException({ message: 'Empresa no encontrada'}, HttpStatus.NOT_FOUND);
-      }
+    async create(companyId: number, data: CreateBranchDto) {
       try {
         return prisma.$transaction(async (tx) => {
           const lastBranch = await tx.branch.findFirst({
-            where: { company_id: data.companyId },
+            where: { company_id: companyId },
             orderBy: { branch_id: 'desc' },
             select: { branch_id: true },
           });
@@ -44,16 +51,16 @@ export class BranchesService {
 
           const newBranch = await tx.branch.create({
             data: {
-            branch_id: nextBranchNumber,
-            address: data.address,
-            phone: data.phone,
-            status: 1,
-            created_date: new Date(),
-            created_by: data.createdBy,
-            company: {
-              connect: { id: data.companyId }
+              branch_id: nextBranchNumber,
+              address: data.address,
+              phone: data.phone,
+              status: 1,
+              created_date: new Date(),
+              created_by: data.createdBy,
+              company: {
+                connect: { id: companyId }
+              }
             }
-          }
           });
 
           return newBranch;
@@ -79,5 +86,18 @@ export class BranchesService {
           throw new HttpException({ error: 'Error inesperado'}, HttpStatus.INTERNAL_SERVER_ERROR);
         }
       }
+    }
+
+    async update(companyId: number, branchId: number, data: UpdateBranchDto) {
+      if (!this.exists(companyId, branchId) || (!data.address && !data.phone)) throw new BadRequestException('Datos de entrada inválidos.');
+      prisma.branch.update({
+        where: {
+          company_id_branch_id: {
+            company_id: companyId,
+            branch_id: branchId
+          }
+        },
+        data: Utils.removeUndefined(data)
+      });
     }
 }

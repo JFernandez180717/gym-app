@@ -3,11 +3,6 @@ import { IsEmail, IsInt, IsNotEmpty, MaxLength } from "class-validator";
 
 export class CreateBranchDto {
     @ApiProperty()
-    @IsInt({ message: 'El id de la empresa debe ser un numero' })
-    @IsNotEmpty({ message: 'El id de la empresa no puede estar vacío.' })
-    companyId: number;
-
-    @ApiProperty()
     @IsNotEmpty({ message: 'La dirección no puede estar vacía' })
     @MaxLength(255, { message: 'La dirección debe contener máximo 255 caracteres' } )
     address: string;
