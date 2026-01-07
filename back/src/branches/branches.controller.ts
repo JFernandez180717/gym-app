@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put } from '@nestjs/common';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { BranchesService } from './branches.service';
 import { CreateBranchDto } from './dto/create-branch.dto';
@@ -35,7 +35,7 @@ export class BranchesController {
         return this.branchesService.create(activeUser.companyId, data);
     }
 
-    @Put(':id')
+    @Patch(':id')
     @Roles('ADMIN')
     @ApiBearerAuth()
     @ApiResponse({
@@ -43,5 +43,15 @@ export class BranchesController {
     })
     async update(@ActiveUser() activeUser: ActiveUserInterface, @Body() data: UpdateBranchDto, @Param('id') id: number) {
       await this.branchesService.update(activeUser.companyId, id, data, activeUser.email);
+    }
+
+    @Delete(':id')
+    @Roles('ADMIN')
+    @ApiBearerAuth()
+    @ApiResponse({
+      status: 200
+    })
+    async delete(@ActiveUser() activeUser: ActiveUserInterface, @Param('id') id: number) {
+      await this.branchesService.delete(activeUser.companyId, id);
     }
 }

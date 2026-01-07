@@ -104,4 +104,16 @@ export class BranchesService {
         }
       });
     }
+
+    async delete(companyId: number, branchId: number) {
+      if (!this.exists(companyId, branchId)) throw new BadRequestException('Datos de entrada inválidos.'); 
+      await prisma.branch.delete({
+        where: {
+          company_id_branch_id: {
+            company_id: companyId,
+            branch_id: branchId
+          }
+        }
+      });
+    }
 }
