@@ -41,7 +41,7 @@ export class BranchesController {
     @ApiResponse({
       status: 200,
     })
-    async update(@ActiveUser() activeUser: ActiveUserInterface, @Param('id') id: number, @Body() data: UpdateBranchDto) {
-      await this.branchesService.update(activeUser.companyId, id, data);
+    async update(@ActiveUser() activeUser: ActiveUserInterface, @Body() data: UpdateBranchDto, @Param('id') id: number) {
+      await this.branchesService.update(activeUser.companyId, id, data, activeUser.email);
     }
 }

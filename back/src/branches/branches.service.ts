@@ -88,16 +88,20 @@ export class BranchesService {
       }
     }
 
-    async update(companyId: number, branchId: number, data: UpdateBranchDto) {
-      if (!this.exists(companyId, branchId) || (!data.address && !data.phone)) throw new BadRequestException('Datos de entrada inválidos.');
-      prisma.branch.update({
+    async update(companyId: number, branchId: number, data: UpdateBranchDto, userEmail: string) {
+      if (!this.exists(companyId, branchId) || (!data.address && !data.phone)) throw new BadRequestException('Datos de entrada inválidos.');      
+      await prisma.branch.update({
         where: {
           company_id_branch_id: {
             company_id: companyId,
             branch_id: branchId
           }
         },
-        data: Utils.removeUndefined(data)
+        data: {
+          ...Utils.removeUndefined(data),
+          modified_by: userEmail,
+          modified_date: new Date()
+        }
       });
     }
 }
