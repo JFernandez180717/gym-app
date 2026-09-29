@@ -4,9 +4,14 @@ import { IsDate, IsEmail, IsInt, IsNotEmpty, IsOptional, MaxLength } from "class
 @ApiSchema({ name: 'CreateRoleRequest', description: 'Description of CreateRoleRequest' })
 export class CreateRoleDto {
     @ApiProperty()
-    @IsInt({ message: 'El id del gimnasio debe ser un valor numerico' })
-    @IsNotEmpty({ message: 'El id del gimnasio no puede estar vacío' })
-    gymId: number;
+    @IsInt({ message: 'El id de la empresa debe ser un valor numerico' })
+    @IsNotEmpty({ message: 'El id de la empresa no puede estar vacío' })
+    companyId: number;
+    
+    @ApiProperty()
+    @IsInt({ message: 'El id de la sede debe ser un valor numerico' })
+    @IsNotEmpty({ message: 'El id de la sede no puede estar vacío' })
+    branchId: number;
 
     @ApiProperty()
     @IsNotEmpty({ message: 'El campo role no puede estar vacío.' })

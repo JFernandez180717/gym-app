@@ -2,7 +2,9 @@ import { ApiProperty } from "@nestjs/swagger";
 
 export class GetUserModel {
     @ApiProperty()
-    gym_id: number;
+    companyId: number;
+    @ApiProperty()
+    branchId: number;
     @ApiProperty()
     email: string;
     @ApiProperty()
@@ -16,11 +18,11 @@ export class GetUserModel {
     @ApiProperty()
     status: number;
     @ApiProperty()
-    created_date: Date;
+    createdDate: Date;
     @ApiProperty()
-    modified_date: Date;
+    modifiedDate: Date;
     @ApiProperty()
-    created_by: string;
+    createdBy: string;
     @ApiProperty()
-    modified_by: string;
+    modifiedBy: string;
 }

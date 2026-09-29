@@ -1,6 +1,10 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { UserLoginResponseModel } from "./user-login-response.model";
 
 export class LoginModel {
     @ApiProperty()
-    access_token: string;
+    user: UserLoginResponseModel;
+
+    @ApiProperty()
+    roles: [];
 }

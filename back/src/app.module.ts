@@ -6,7 +6,6 @@ import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
 import { RolesModule } from './roles/roles.module';
-import { GymModule } from './gym/gym.module';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { BranchesModule } from './branches/branches.module';
 import { CompaniesModule } from './companies/companies.module';

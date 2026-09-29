@@ -1,0 +1,12 @@
+node_modules
+dist
+npm-debug.log
+Dockerfile
+.dockerignore
+.git
+.env*
+
+# PRISMA
+# NO ignores prisma/migrations/ si quieres que Docker las ejecute.
+# Solo ignora el cliente generado localmente para evitar conflictos de arquitectura.
+node_modules/.prisma
