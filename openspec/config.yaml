@@ -1,0 +1,60 @@
+context: |
+  Gym management monorepo with `back/` (NestJS 11 + Prisma + PostgreSQL + JWT/role guards)
+  and `front/` (Nuxt 4 + @nuxt/ui + Zod). Modules: auth, users, roles, branches, companies.
+  Multi-tenant via (company_id, branch_id) compound keys in Prisma schema.
+  Backend listens on PORT (default 3000), Swagger at /api, CORS for http://localhost:3000.
+  Frontend API base configured at http://localhost:3001 (mismatch flagged as risk).
+  PostgreSQL exposed on host port 5435 via docker-compose.
+
+strict_tdd: true
+
+testing:
+  backend:
+    runner: jest
+    layers:
+      unit:
+        command: "npm test"
+        match: "*.spec.ts"
+        root: "back/src"
+        framework: jest + ts-jest
+        status: present_but_scaffold_only
+      e2e:
+        command: "npm run test:e2e"
+        match: "*.e2e-spec.ts"
+        config: "back/test/jest-e2e.json"
+        framework: jest + ts-jest + supertest
+        status: scaffold_only
+    coverage:
+      available: true
+      command: "npm run test:cov"
+    lint:
+      command: "npm run lint"
+      framework: eslint + typescript-eslint + prettier
+    format:
+      command: "npm run format"
+      framework: prettier
+    typecheck:
+      command: "npx tsc -p back/tsconfig.json --noEmit"
+      framework: typescript 5.7
+  frontend:
+    runner: none
+    layers:
+      unit: unavailable
+      e2e: unavailable
+    coverage: unavailable
+    lint: unavailable
+    format: unavailable
+    typecheck:
+      framework: nuxt prepare + tsconfig (project refs)
+    notes: "No test/lint scripts in front/package.json; rely on `pnpm build` / `pnpm generate`."
+
+phases:
+  proposal: sdd-propose
+  spec: sdd-spec
+  design: sdd-design
+  tasks: sdd-tasks
+  apply: sdd-apply
+  verify: sdd-verify
+  archive: sdd-archive
+  explore: sdd-explore
+  init: sdd-init
